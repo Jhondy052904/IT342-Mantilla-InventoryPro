@@ -1,0 +1,14 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.enabled": false,
+  "java.import.maven.enabled": true,
+  "java.project.sourcePaths": ["backend/src/main/java", "web/frontend/src"],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
+  },
+  "java.debug.settings.onBuildFailureProceed": true
+}

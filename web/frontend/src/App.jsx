@@ -1,34 +1,60 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import './styles.css'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+// Pages
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import Dashboard from './pages/Dashboard'
+import Products from './pages/Products'
+import Settings from './pages/Settings'
 
+// Components
+import Sidebar from './components/Sidebar'
+
+function App() {
+  const [currentPage, setCurrentPage] = useState('login')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  const handleLogin = () => {
+    setIsLoggedIn(true)
+    setCurrentPage('dashboard')
+  }
+
+  const handleSignupSuccess = () => {
+    setIsLoggedIn(true)
+    setCurrentPage('dashboard')
+  }
+
+  const handleNavigate = (page) => {
+    if (page === 'login') {
+      setIsLoggedIn(false)
+    }
+    setCurrentPage(page)
+  }
+
+  // Render login page if not logged in
+  if (!isLoggedIn) {
+    if (currentPage === 'signup') {
+      return (
+        <Signup
+          onSignupSuccess={handleSignupSuccess}
+          onBackToLogin={() => setCurrentPage('login')}
+        />
+      )
+    }
+    return <Login onLogin={handleLogin} onNavigateToSignup={() => setCurrentPage('signup')} />
+  }
+
+  // Render main application with sidebar
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#F9FAFB' }}>
+      <Sidebar currentPage={currentPage} onNavigate={handleNavigate} />
+      
+      {currentPage === 'dashboard' && <Dashboard />}
+      {currentPage === 'products' && <Products />}
+      {currentPage === 'settings' && <Settings />}
+    </div>
   )
 }
 
