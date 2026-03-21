@@ -1,15 +1,14 @@
 // services/authService.js - Authentication API Service
-const API_URL = 'http://localhost:8080/api/auth';
 
 export const authService = {
   /**
    * Register a new user
-   * @param {Object} userData - { name, email, password }
+   * @param {Object} userData - { firstName, lastName, email, password }
    * @returns {Promise<Object>} Response with user data
    */
   register: async (userData) => {
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +35,7 @@ export const authService = {
    */
   login: async (credentials) => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

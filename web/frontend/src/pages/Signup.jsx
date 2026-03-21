@@ -6,7 +6,8 @@ import { authService } from '../services/authService';
 
 export default function Signup({ onSignupSuccess, onBackToLogin }) {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -26,7 +27,7 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
 
     try {
       // Validation
-      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
         throw new Error('All fields are required');
       }
 
@@ -38,9 +39,10 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
         throw new Error('Password must be at least 8 characters');
       }
 
-      // Call API
+      // Call API with firstName and lastName
       const response = await authService.register({
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
       });
@@ -117,16 +119,30 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
           )}
 
           <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <Input
-              label="Full Name"
-              type="text"
-              placeholder="John Doe"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              disabled={loading}
-            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <Input
+                label="First Name"
+                type="text"
+                placeholder="John"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                style={{ flex: 1 }}
+              />
+              <Input
+                label="Last Name"
+                type="text"
+                placeholder="Doe"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                style={{ flex: 1 }}
+              />
+            </div>
             <Input
               label="Email Address"
               type="email"
