@@ -13,14 +13,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
-    
+
     private final AuthService authService;
-    
+
     /**
      * Register a new user
-     * @param request RegisterRequest containing name, email, and password
+     * 
+     * @param request RegisterRequest containing firstName, lastName, email, and
+     *                password
      * @return ResponseEntity with AuthResponse
      */
     @PostMapping("/register")
@@ -29,16 +30,14 @@ public class AuthController {
             AuthResponse response = authService.register(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            AuthResponse response = AuthResponse.builder()
-                    .success(false)
-                    .message(e.getMessage())
-                    .build();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(AuthResponse.error("REGISTRATION_FAILED", e.getMessage()));
         }
     }
-    
+
     /**
      * Login a user
+     * 
      * @param request LoginRequest containing email and password
      * @return ResponseEntity with AuthResponse
      */
@@ -48,11 +47,8 @@ public class AuthController {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            AuthResponse response = AuthResponse.builder()
-                    .success(false)
-                    .message(e.getMessage())
-                    .build();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(AuthResponse.error("LOGIN_FAILED", e.getMessage()));
         }
     }
 }

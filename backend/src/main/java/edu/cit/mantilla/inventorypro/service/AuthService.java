@@ -1,5 +1,6 @@
 package edu.cit.mantilla.inventorypro.service;
 
+import edu.cit.mantilla.inventorypro.config.JwtUtil;
 import edu.cit.mantilla.inventorypro.dto.AuthResponse;
 import edu.cit.mantilla.inventorypro.dto.LoginRequest;
 import edu.cit.mantilla.inventorypro.dto.RegisterRequest;
@@ -12,69 +13,79 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    
-    /**
-     * Register a new user
-     * @param request RegisterRequest containing name, email, and password
-     * @return AuthResponse with success status and user details
-     * @throws IllegalArgumentException if email already exists
-     */
-    public AuthResponse register(RegisterRequest request) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+
+        private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtUtil jwtUtil;
+
+        /**
+         * Register a new user
+         * 
+         * @param request RegisterRequest containing firstName, lastName, email, and
+         *                password
+         * @return AuthResponse with success status, user details, and JWT tokens
+         * @throws IllegalArgumentException if email already exists
+         */
+        public AuthResponse register(RegisterRequest request) {
+                // Check if email already exists
+                if (userRepository.existsByEmail(request.getEmail())) {
+                        throw new IllegalArgumentException("Email already exists");
+                }
+
+                // Create new user entity with firstName, lastName, and passwordHash
+                User user = User.builder()
+                                .firstName(request.getFirstName())
+                                .lastName(request.getLastName())
+                                .email(request.getEmail())
+                                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                                .role(User.Role.USER) // Default role
+                                .build();
+
+                // Save user to database
+                User savedUser = userRepository.save(user);
+
+                // Generate JWT tokens
+                String accessToken = jwtUtil.generateAccessToken(savedUser.getEmail());
+                String refreshToken = jwtUtil.generateRefreshToken(savedUser.getEmail());
+
+                // Return success response with tokens
+                return AuthResponse.success(
+                                accessToken,
+                                refreshToken,
+                                savedUser.getEmail(),
+                                savedUser.getFirstName(),
+                                savedUser.getLastName(),
+                                savedUser.getRole().name());
         }
-        
-        // Create new user entity
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
-        
-        // Save user to database
-        User savedUser = userRepository.save(user);
-        
-        // Return success response
-        return AuthResponse.builder()
-                .success(true)
-                .message("User registered successfully")
-                .user(AuthResponse.UserDTO.builder()
-                        .id(savedUser.getId())
-                        .name(savedUser.getName())
-                        .email(savedUser.getEmail())
-                        .build())
-                .build();
-    }
-    
-    /**
-     * Login a user
-     * @param request LoginRequest containing email and password
-     * @return AuthResponse with success status and user details
-     * @throws IllegalArgumentException if credentials are invalid
-     */
-    public AuthResponse login(LoginRequest request) {
-        // Find user by email
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-        
-        // Verify password (using BCrypt comparison)
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+
+        /**
+         * Login a user
+         * 
+         * @param request LoginRequest containing email and password
+         * @return AuthResponse with success status, user details, and JWT tokens
+         * @throws IllegalArgumentException if credentials are invalid
+         */
+        public AuthResponse login(LoginRequest request) {
+                // Find user by email
+                User user = userRepository.findByEmail(request.getEmail())
+                                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+                // Verify password using BCrypt (compare raw password with passwordHash)
+                if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+                        throw new IllegalArgumentException("Invalid email or password");
+                }
+
+                // Generate JWT tokens
+                String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+                String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+                // Return success response with tokens
+                return AuthResponse.success(
+                                accessToken,
+                                refreshToken,
+                                user.getEmail(),
+                                user.getFirstName(),
+                                user.getLastName(),
+                                user.getRole().name());
         }
-        
-        // Return success response
-        return AuthResponse.builder()
-                .success(true)
-                .message("Login successful")
-                .user(AuthResponse.UserDTO.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .build())
-                .build();
-    }
 }
