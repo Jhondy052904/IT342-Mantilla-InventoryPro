@@ -1,13 +1,18 @@
 package edu.cit.mantilla.inventorypro.config;
 
+import edu.cit.mantilla.inventorypro.service.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,7 +21,11 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtFilter jwtFilter;
+    private final UserDetailsServiceImpl userDetailsService;
 
     /**
      * Configure BCryptPasswordEncoder bean for password hashing
@@ -29,6 +38,16 @@ public class SecurityConfig {
     }
 
     /**
+     * Configure authentication manager
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return authBuilder.build();
+    }
+
+    /**
      * Configure CORS settings to allow requests from React frontend
      * 
      * @return CorsConfigurationSource with CORS settings
@@ -37,10 +56,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow requests from React frontend on port 5173
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // Allow requests from React frontend on ports 5173 (Vite) and 3000 (CRA)
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
 
-        // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
+        // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, PATCH)
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // Allow necessary headers for requests
@@ -65,6 +84,7 @@ public class SecurityConfig {
      * - Disable CSRF for stateless REST API
      * - Enable CORS
      * - Use stateless session management
+     * - Add JwtFilter before UsernamePasswordAuthenticationFilter
      * 
      * @param http HttpSecurity configuration
      * @return SecurityFilterChain
@@ -79,12 +99,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 // Set stateless session management (no session cookies)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Configure authentication provider
+                .authenticationManager(authenticationManager(http))
                 // Configure authorization for endpoints
                 .authorizeHttpRequests(authz -> authz
                         // Permit all requests to auth endpoints (register, login)
                         .requestMatchers("/api/auth/**").permitAll()
                         // All other requests require authentication
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                // Add JWT filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
