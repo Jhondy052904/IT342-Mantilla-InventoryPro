@@ -5,11 +5,18 @@ import edu.cit.mantilla.inventorypro.dto.AuthResponse;
 import edu.cit.mantilla.inventorypro.dto.LoginRequest;
 import edu.cit.mantilla.inventorypro.dto.RegisterRequest;
 import edu.cit.mantilla.inventorypro.entity.User;
+import edu.cit.mantilla.inventorypro.exception.UserAlreadyExistsException;
 import edu.cit.mantilla.inventorypro.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Authentication Service
+ * 
+ * Handles user registration and login business logic.
+ * Throws specific exceptions that are handled by GlobalExceptionHandler.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -21,15 +28,14 @@ public class AuthService {
         /**
          * Register a new user
          * 
-         * @param request RegisterRequest containing firstName, lastName, email, and
-         *                password
+         * @param request RegisterRequest containing firstName, lastName, email, and password
          * @return AuthResponse with success status, user details, and JWT tokens
-         * @throws IllegalArgumentException if email already exists
+         * @throws UserAlreadyExistsException if email is already registered
          */
         public AuthResponse register(RegisterRequest request) {
-                // Check if email already exists
+                // Check if email already exists - throw custom exception
                 if (userRepository.existsByEmail(request.getEmail())) {
-                        throw new IllegalArgumentException("Email already exists");
+                        throw new UserAlreadyExistsException("Email '" + request.getEmail() + "' is already registered");
                 }
 
                 // Create new user entity with firstName, lastName, and passwordHash
@@ -66,7 +72,7 @@ public class AuthService {
          * @throws IllegalArgumentException if credentials are invalid
          */
         public AuthResponse login(LoginRequest request) {
-                // Find user by email
+                // Find user by email - throw IllegalArgumentException if not found
                 User user = userRepository.findByEmail(request.getEmail())
                                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 

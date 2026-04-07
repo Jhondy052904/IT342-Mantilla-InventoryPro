@@ -10,6 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Authentication Controller
+ * 
+ * Handles user registration and login endpoints.
+ * Error handling is delegated to GlobalExceptionHandler.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -20,39 +26,27 @@ public class AuthController {
     /**
      * Register a new user
      * 
-<<<<<<< HEAD
-     * @param request RegisterRequest containing firstName, lastName, email, and
-     *                password
-=======
-     * @param request RegisterRequest containing name, email, and password
->>>>>>> e6a7701 (Fix: Resolved login authentication issue)
-     * @return ResponseEntity with AuthResponse
+     * @param request RegisterRequest containing firstName, lastName, email, and password
+     * @return ResponseEntity with AuthResponse (HTTP 201 Created)
+     * @throws UserAlreadyExistsException if email is already registered
+     * @throws IllegalArgumentException if validation fails
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        try {
-            AuthResponse response = authService.register(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(AuthResponse.error("REGISTRATION_FAILED", e.getMessage()));
-        }
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Login a user
      * 
      * @param request LoginRequest containing email and password
-     * @return ResponseEntity with AuthResponse
+     * @return ResponseEntity with AuthResponse (HTTP 200 OK)
+     * @throws IllegalArgumentException if credentials are invalid
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        try {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(AuthResponse.error("LOGIN_FAILED", e.getMessage()));
-        }
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
