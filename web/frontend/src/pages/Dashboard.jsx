@@ -2,9 +2,59 @@
 import Card from '../components/Card';
 import StatCard from '../components/StatCard';
 import BarChart from '../components/BarChart';
+import { useState, useEffect } from 'react';
+import { dashboardService } from '../api/services/dashboardService';
+import { HttpError, ApiError } from '../api/apiClient';
 
 export default function Dashboard() {
-  const chartData = [
+  // State for API data
+  const [stats, setStats] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [trends, setTrends] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        // Fetch all data in parallel using factory services
+        const [statsData, activitiesData, trendsData] = await Promise.all([
+          dashboardService.getStats(),
+          dashboardService.getActivities(),
+          dashboardService.getTrends(),
+        ]);
+
+        setStats(statsData);
+        setActivities(activitiesData);
+        setTrends(trendsData);
+      } catch (err) {
+        // Centralized error handling
+        if (err instanceof HttpError) {
+          if (err.status === 401) {
+            setError('Session expired. Please login again.');
+          } else {
+            setError(`Error: ${err.message}`);
+          }
+        } else if (err instanceof ApiError) {
+          setError('Failed to connect to API');
+        } else {
+          setError('An unexpected error occurred');
+        }
+        console.error('Dashboard error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Fallback hardcoded data if API fails (for development)
+  const defaultChartData = [
     { label: 'Jan', value: 24 },
     { label: 'Feb', value: 19 },
     { label: 'Mar', value: 28 },
@@ -13,15 +63,50 @@ export default function Dashboard() {
     { label: 'Jun', value: 26 },
   ];
 
-  const recentActivities = [
+  const defaultRecentActivities = [
     { id: 1, action: 'Stock Updated', product: 'Organic Coffee Beans', timestamp: '2 hours ago' },
     { id: 2, action: 'New Product Added', product: 'Premium Tea Collection', timestamp: '5 hours ago' },
     { id: 3, action: 'Low Stock Alert', product: 'Honey Jar 500ml', timestamp: '1 day ago' },
     { id: 4, action: 'Stock Replenished', product: 'Almond Flour', timestamp: '2 days ago' },
   ];
 
+  const chartData = trends.length > 0 ? trends : defaultChartData;
+  const recentActivities = activities.length > 0 ? activities : defaultRecentActivities;
+
   return (
     <div style={{ marginLeft: '250px', padding: '32px', backgroundColor: '#F9FAFB', minHeight: '100vh' }}>
+      {/* Error Display */}
+      {error && (
+        <div
+          style={{
+            backgroundColor: '#FEE2E2',
+            color: '#991B1B',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #FECACA',
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Loading Display */}
+      {loading && (
+        <div
+          style={{
+            backgroundColor: '#E0E7FF',
+            color: '#4F46E5',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #C7D2FE',
+          }}
+        >
+          Loading dashboard data...
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
@@ -33,36 +118,38 @@ export default function Dashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '20px',
-          marginBottom: '32px',
-        }}
-      >
-        <StatCard
-          title="Low Stock"
-          value="12"
-          change="2.5%"
-          trend="down"
-          icon="!"
-        />
-        <StatCard
-          title="Overstocked"
-          value="8"
-          change="1.2%"
-          trend="up"
-          icon="+"
-        />
-        <StatCard
-          title="Out of Stock"
-          value="3"
-          change="0.8%"
-          trend="down"
-          icon="✕"
-        />
-      </div>
+      {stats && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px',
+            marginBottom: '32px',
+          }}
+        >
+          <StatCard
+            title="Low Stock"
+            value={stats.lowStockCount || '12'}
+            change={stats.lowStockTrend || '2.5%'}
+            trend="down"
+            icon="!"
+          />
+          <StatCard
+            title="Overstocked"
+            value={stats.overstockedCount || '8'}
+            change={stats.overstockedTrend || '1.2%'}
+            trend="up"
+            icon="+"
+          />
+          <StatCard
+            title="Out of Stock"
+            value={stats.outOfStockCount || '3'}
+            change={stats.outOfStockTrend || '0.8%'}
+            trend="down"
+            icon="✕"
+          />
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div
