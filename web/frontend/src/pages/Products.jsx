@@ -6,86 +6,7 @@ import { productService } from '../api/services/productService';
 import { HttpError, ApiError } from '../api/apiClient';
 
 export default function Products() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  // Fetch products on component mount
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError('');
-
-      try {
-        // Fetch products from API using factory
-        const data = await productService.getProducts();
-        setProducts(data);
-      } catch (err) {
-        // Centralized error handling
-        if (err instanceof HttpError) {
-          setError(`Error: ${err.message}`);
-        } else if (err instanceof ApiError) {
-          setError('Failed to connect to API');
-        } else {
-          setError('Failed to load products');
-        }
-        console.error('Products fetch error:', err);
-
-        // Use fallback hardcoded data for development
-        setProducts([
-          {
-            id: 1,
-            name: 'Organic Coffee Beans',
-            price: '$15.99',
-            stock: '245',
-            status: 'in-stock',
-          },
-          {
-            id: 2,
-            name: 'Premium Tea Collection',
-            price: '$24.99',
-            stock: '18',
-            status: 'low-stock',
-          },
-          {
-            id: 3,
-            name: 'Honey Jar 500ml',
-            price: '$8.99',
-            stock: '0',
-            status: 'out-of-stock',
-          },
-          {
-            id: 4,
-            name: 'Almond Flour 1kg',
-            price: '$12.50',
-            stock: '156',
-            status: 'in-stock',
-          },
-          {
-            id: 5,
-            name: 'Dark Chocolate Bar',
-            price: '$5.99',
-            stock: '542',
-            status: 'in-stock',
-          },
-          {
-            id: 6,
-            name: 'Herbal Tea Mix',
-            price: '$7.50',
-            stock: '5',
-            status: 'low-stock',
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  // Fallback hardcoded data if needed
-  const defaultProducts = [
+  const [products, setProducts] = useState([
     {
       id: 1,
       name: 'Organic Coffee Beans',
@@ -129,17 +50,49 @@ export default function Products() {
       status: 'low-stock',
     },
   ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Fetch products on component mount (currently using fallback hardcoded data)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        // Fetch products from API using factory service
+        const data = await productService.getProducts();
+        setProducts(data);
+      } catch (err) {
+        // Centralized error handling
+        if (err instanceof HttpError) {
+          setError('Error: ' + err.message);
+        } else if (err instanceof ApiError) {
+          setError('Failed to connect to API');
+        } else {
+          setError('Failed to load products');
+        }
+        console.error('Products fetch error:', err);
+        // Keep default state on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Uncomment to enable API calls
+    // fetchProducts();
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'in-stock':
-        return { bg: '#DCFCE7', color: '#166534', dot: '●' };
+        return { bg: '#DCFCE7', color: '#166534', dot: 'dot' };
       case 'low-stock':
-        return { bg: '#FEF3C7', color: '#B45309', dot: '●' };
+        return { bg: '#FEF3C7', color: '#B45309', dot: 'dot' };
       case 'out-of-stock':
-        return { bg: '#FEE2E2', color: '#991B1B', dot: '●' };
+        return { bg: '#FEE2E2', color: '#991B1B', dot: 'dot' };
       default:
-        return { bg: '#E5E7EB', color: '#374151', dot: '●' };
+        return { bg: '#E5E7EB', color: '#374151', dot: 'dot' };
     }
   };
 

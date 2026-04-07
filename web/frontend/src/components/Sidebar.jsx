@@ -1,10 +1,19 @@
 // Sidebar.jsx - Navigation Sidebar Component
+import { useAuth } from '../hooks/useAuth';
+
 export default function Sidebar({ currentPage, onNavigate }) {
+  const { logout } = useAuth();
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '▪' },
     { id: 'products', label: 'Products', icon: '▪' },
     { id: 'settings', label: 'Settings', icon: '▪' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    // Navigation back to login handled by App.jsx watching isAuthenticated
+  };
 
   return (
     <div
@@ -80,7 +89,7 @@ export default function Sidebar({ currentPage, onNavigate }) {
         }}
       >
         <button
-          onClick={() => onNavigate('login')}
+          onClick={handleLogout}
           style={{
             width: '100%',
             padding: '10px 16px',

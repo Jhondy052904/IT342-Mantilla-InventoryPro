@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './styles.css'
 import './App.css'
+
+// Hooks
+import { useAuth } from './hooks/useAuth'
 
 // Pages
 import Login from './pages/Login'
@@ -13,37 +16,51 @@ import Settings from './pages/Settings'
 import Sidebar from './components/Sidebar'
 
 function App() {
+  const { isAuthenticated, isLoading } = useAuth()
   const [currentPage, setCurrentPage] = useState('login')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const handleLogin = () => {
-    setIsLoggedIn(true)
-    setCurrentPage('dashboard')
-  }
+  /**
+   * Redirect to login if user logs out via useAuth
+   */
+  useEffect(() => {
+    if (!isAuthenticated && currentPage !== 'signup') {
+      setCurrentPage('login')
+    }
+  }, [isAuthenticated, currentPage])
 
-  const handleSignupSuccess = () => {
-    setIsLoggedIn(true)
-    setCurrentPage('dashboard')
+  /**
+   * Show loading screen while auth state initializes
+   */
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        backgroundColor: '#F9FAFB',
+        fontSize: '18px',
+        color: '#6B7280'
+      }}>
+        Loading...
+      </div>
+    )
   }
 
   const handleNavigate = (page) => {
-    if (page === 'login') {
-      setIsLoggedIn(false)
-    }
     setCurrentPage(page)
   }
 
-  // Render login page if not logged in
-  if (!isLoggedIn) {
+  // Render login/signup pages if not authenticated
+  if (!isAuthenticated) {
     if (currentPage === 'signup') {
       return (
         <Signup
-          onSignupSuccess={handleSignupSuccess}
           onBackToLogin={() => setCurrentPage('login')}
         />
       )
     }
-    return <Login onLogin={handleLogin} onNavigateToSignup={() => setCurrentPage('signup')} />
+    return <Login onNavigateToSignup={() => setCurrentPage('signup')} />
   }
 
   // Render main application with sidebar
