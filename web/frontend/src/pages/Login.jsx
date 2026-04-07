@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { authService } from '../services/authService';
+import { authService } from '../api/services/authService';
+import { HttpError, ApiError } from '../api/apiClient';
 
 export default function Login({ onLogin, onNavigateToSignup }) {
   const [email, setEmail] = useState('');
@@ -28,7 +29,18 @@ export default function Login({ onLogin, onNavigateToSignup }) {
         setError(response.message || 'Login failed');
       }
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      // Centralized error handling with new error classes
+      if (err instanceof HttpError) {
+        if (err.status === 401) {
+          setError('Invalid email or password');
+        } else {
+          setError(err.message);
+        }
+      } else if (err instanceof ApiError) {
+        setError('Failed to connect to server');
+      } else {
+        setError(err.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
