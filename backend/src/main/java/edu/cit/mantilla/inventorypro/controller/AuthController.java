@@ -20,8 +20,12 @@ public class AuthController {
     /**
      * Register a new user
      * 
+<<<<<<< HEAD
      * @param request RegisterRequest containing firstName, lastName, email, and
      *                password
+=======
+     * @param request RegisterRequest containing name, email, and password
+>>>>>>> e6a7701 (Fix: Resolved login authentication issue)
      * @return ResponseEntity with AuthResponse
      */
     @PostMapping("/register")
