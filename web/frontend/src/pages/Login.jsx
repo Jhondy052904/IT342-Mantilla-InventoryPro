@@ -2,32 +2,26 @@
 import { useState } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { authService } from '../api/services/authService';
+import { useAuth } from '../hooks/useAuth';
 import { HttpError, ApiError } from '../api/apiClient';
 
-export default function Login({ onLogin, onNavigateToSignup }) {
+export default function Login({ onNavigateToSignup }) {
+  const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
     try {
       if (!email || !password) {
         throw new Error('Email and password are required');
       }
 
-      const response = await authService.login({ email, password });
-
-      if (response.success) {
-        onLogin();
-      } else {
-        setError(response.message || 'Login failed');
-      }
+      await login({ email, password });
+      // Navigation handled by useAuth state change in App.jsx
     } catch (err) {
       // Centralized error handling with new error classes
       if (err instanceof HttpError) {
@@ -41,8 +35,6 @@ export default function Login({ onLogin, onNavigateToSignup }) {
       } else {
         setError(err.message || 'Login failed. Please try again.');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -105,7 +97,7 @@ export default function Login({ onLogin, onNavigateToSignup }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={loading}
+              disabled={isLoading}
             />
             <Input
               label="Password"
@@ -114,20 +106,20 @@ export default function Login({ onLogin, onNavigateToSignup }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading}
+              disabled={isLoading}
             />
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input type="checkbox" style={{ cursor: 'pointer' }} disabled={loading} />
+              <input type="checkbox" style={{ cursor: 'pointer' }} disabled={isLoading} />
               Remember me
             </label>
 
             <Button
               variant="primary"
               style={{ width: '100%', padding: '12px' }}
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
 
             <p style={{ textAlign: 'center', fontSize: '14px', color: '#6B7280' }}>
@@ -135,15 +127,15 @@ export default function Login({ onLogin, onNavigateToSignup }) {
               <button
                 type="button"
                 onClick={onNavigateToSignup}
-                disabled={loading}
+                disabled={isLoading}
                 style={{
                   background: 'none',
                   border: 'none',
                   color: '#10B981',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   padding: 0,
-                  opacity: loading ? 0.6 : 1,
+                  opacity: isLoading ? 0.6 : 1,
                 }}
               >
                 Sign up

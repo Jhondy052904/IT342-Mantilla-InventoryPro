@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { authService } from '../api/services/authService';
+import { useAuth } from '../hooks/useAuth';
 import { HttpError, ApiError } from '../api/apiClient';
 
-export default function Signup({ onSignupSuccess, onBackToLogin }) {
+export default function Signup({ onBackToLogin }) {
+  const { register, login, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -14,7 +15,6 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
     confirmPassword: '',
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,7 +24,6 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
     try {
       // Validation
@@ -41,26 +40,20 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
       }
 
       // Call API with firstName and lastName
-      const response = await authService.register({
+      await register({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
       });
 
-      if (response.success) {
-        // Auto-login user after successful registration
-        const loginResponse = await authService.login({
-          email: formData.email,
-          password: formData.password,
-        });
+      // Auto-login after successful registration
+      await login({
+        email: formData.email,
+        password: formData.password,
+      });
 
-        if (loginResponse.success) {
-          onSignupSuccess();
-        }
-      } else {
-        setError(response.message || 'Registration failed');
-      }
+      // Navigation handled by useAuth state change in App.jsx
     } catch (err) {
       // Centralized error handling with new error classes
       if (err instanceof HttpError) {
@@ -74,8 +67,6 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
       } else {
         setError(err.message || 'Registration failed. Please try again.');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -140,7 +131,7 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={isLoading}
                 style={{ flex: 1 }}
               />
               <Input
@@ -151,7 +142,7 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                disabled={loading}
+                disabled={isLoading}
                 style={{ flex: 1 }}
               />
             </div>
@@ -163,7 +154,7 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
               value={formData.email}
               onChange={handleChange}
               required
-              disabled={loading}
+              disabled={isLoading}
             />
             <Input
               label="Password"
@@ -173,7 +164,7 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
               value={formData.password}
               onChange={handleChange}
               required
-              disabled={loading}
+              disabled={isLoading}
             />
             <Input
               label="Confirm Password"
@@ -183,20 +174,20 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              disabled={loading}
+              disabled={isLoading}
             />
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <input type="checkbox" style={{ cursor: 'pointer' }} required disabled={loading} />
+              <input type="checkbox" style={{ cursor: 'pointer' }} required disabled={isLoading} />
               I agree to the Terms of Service
             </label>
 
             <Button
               variant="primary"
               style={{ width: '100%', padding: '12px' }}
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
 
             <p style={{ textAlign: 'center', fontSize: '14px', color: '#6B7280' }}>
@@ -204,15 +195,15 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
               <button
                 type="button"
                 onClick={onBackToLogin}
-                disabled={loading}
+                disabled={isLoading}
                 style={{
                   background: 'none',
                   border: 'none',
                   color: '#10B981',
                   fontWeight: '600',
-                  cursor: loading ? 'not-allowed' : 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   padding: 0,
-                  opacity: loading ? 0.6 : 1,
+                  opacity: isLoading ? 0.6 : 1,
                 }}
               >
                 Login
