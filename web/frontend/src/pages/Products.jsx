@@ -1,10 +1,91 @@
 // pages/Products.jsx - Products Management Page
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { productService } from '../api/services/productService';
+import { HttpError, ApiError } from '../api/apiClient';
 
 export default function Products() {
-  const [products] = useState([
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Fetch products on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        // Fetch products from API using factory
+        const data = await productService.getProducts();
+        setProducts(data);
+      } catch (err) {
+        // Centralized error handling
+        if (err instanceof HttpError) {
+          setError(`Error: ${err.message}`);
+        } else if (err instanceof ApiError) {
+          setError('Failed to connect to API');
+        } else {
+          setError('Failed to load products');
+        }
+        console.error('Products fetch error:', err);
+
+        // Use fallback hardcoded data for development
+        setProducts([
+          {
+            id: 1,
+            name: 'Organic Coffee Beans',
+            price: '$15.99',
+            stock: '245',
+            status: 'in-stock',
+          },
+          {
+            id: 2,
+            name: 'Premium Tea Collection',
+            price: '$24.99',
+            stock: '18',
+            status: 'low-stock',
+          },
+          {
+            id: 3,
+            name: 'Honey Jar 500ml',
+            price: '$8.99',
+            stock: '0',
+            status: 'out-of-stock',
+          },
+          {
+            id: 4,
+            name: 'Almond Flour 1kg',
+            price: '$12.50',
+            stock: '156',
+            status: 'in-stock',
+          },
+          {
+            id: 5,
+            name: 'Dark Chocolate Bar',
+            price: '$5.99',
+            stock: '542',
+            status: 'in-stock',
+          },
+          {
+            id: 6,
+            name: 'Herbal Tea Mix',
+            price: '$7.50',
+            stock: '5',
+            status: 'low-stock',
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Fallback hardcoded data if needed
+  const defaultProducts = [
     {
       id: 1,
       name: 'Organic Coffee Beans',
