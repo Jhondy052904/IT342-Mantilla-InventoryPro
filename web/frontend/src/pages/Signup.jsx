@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { authService } from '../services/authService';
+import { authService } from '../api/services/authService';
+import { HttpError, ApiError } from '../api/apiClient';
 
 export default function Signup({ onSignupSuccess, onBackToLogin }) {
   const [formData, setFormData] = useState({
@@ -61,7 +62,18 @@ export default function Signup({ onSignupSuccess, onBackToLogin }) {
         setError(response.message || 'Registration failed');
       }
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      // Centralized error handling with new error classes
+      if (err instanceof HttpError) {
+        if (err.status === 409) {
+          setError('Email is already registered. Please login instead.');
+        } else {
+          setError(err.message);
+        }
+      } else if (err instanceof ApiError) {
+        setError('Failed to connect to server');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
