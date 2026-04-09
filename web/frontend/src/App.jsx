@@ -20,6 +20,15 @@ function App() {
   const [currentPage, setCurrentPage] = useState('login')
 
   /**
+   * Redirect to dashboard on successful login
+   */
+  useEffect(() => {
+    if (isAuthenticated && currentPage === 'login') {
+      setCurrentPage('dashboard')
+    }
+  }, [isAuthenticated])
+
+  /**
    * Redirect to login if user logs out via useAuth
    */
   useEffect(() => {

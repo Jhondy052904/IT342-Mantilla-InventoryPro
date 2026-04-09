@@ -17,10 +17,10 @@ export const authService = {
       userData
     );
 
-    // Store token and user info
-    if (response.accessToken) {
-      localStorage.setItem(apiConfig.TOKEN_KEY, response.accessToken);
-      localStorage.setItem(apiConfig.USER_KEY, JSON.stringify(response.user));
+    // Store token and user info from nested response structure
+    if (response.data && response.data.accessToken) {
+      localStorage.setItem(apiConfig.TOKEN_KEY, response.data.accessToken);
+      localStorage.setItem(apiConfig.USER_KEY, JSON.stringify(response.data.user));
     }
 
     return response;
@@ -35,10 +35,10 @@ export const authService = {
       credentials
     );
 
-    // Store token and user info
-    if (response.accessToken) {
-      localStorage.setItem(apiConfig.TOKEN_KEY, response.accessToken);
-      localStorage.setItem(apiConfig.USER_KEY, JSON.stringify(response.user));
+    // Store token and user info from nested response structure
+    if (response.data && response.data.accessToken) {
+      localStorage.setItem(apiConfig.TOKEN_KEY, response.data.accessToken);
+      localStorage.setItem(apiConfig.USER_KEY, JSON.stringify(response.data.user));
     }
 
     return response;

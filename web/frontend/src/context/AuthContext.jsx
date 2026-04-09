@@ -71,9 +71,10 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.login(credentials);
 
-      if (response.accessToken) {
-        setToken(response.accessToken);
-        setUser(response.user);
+      // Extract data from nested response structure
+      if (response.data && response.data.accessToken) {
+        setToken(response.data.accessToken);
+        setUser(response.data.user);
         setIsAuthenticated(true);
       }
       return response;
@@ -95,9 +96,10 @@ export function AuthProvider({ children }) {
     try {
       const response = await authService.register(userData);
 
-      if (response.accessToken) {
-        setToken(response.accessToken);
-        setUser(response.user);
+      // Extract data from nested response structure
+      if (response.data && response.data.accessToken) {
+        setToken(response.data.accessToken);
+        setUser(response.data.user);
         setIsAuthenticated(true);
       }
       return response;
