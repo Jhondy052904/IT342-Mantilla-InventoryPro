@@ -1,50 +1,35 @@
+// components/CategoryFormModal.jsx - Category Form Modal Component
 import { useState, useEffect } from 'react';
 import Input from './Input';
 import Button from './Button';
-import { productService } from '../api/services/productService';
 import { categoryService } from '../api/services/categoryService';
 
 const initialFormData = {
-  sku: '',
   name: '',
-  category: '',
   description: '',
-  unit_price: '',
-  current_stock: '',
-  min_stock_threshold: '',
 };
 
-export default function ProductFormModal({ open, onClose, onSuccess, product }) {
+export default function CategoryFormModal({ open, onClose, onSuccess, category }) {
   const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (!open) return;
 
-    if (product) {
+    if (category) {
       setFormData({
-        sku: product.sku ?? '',
-        name: product.name ?? '',
-        category: product.category ?? '',
-        description: product.description ?? '',
-        unit_price: product.unitPrice ?? '',
-        current_stock: product.currentStock ?? '',
-        min_stock_threshold: product.minStockThreshold ?? '',
+        name: category.name ?? '',
+        description: category.description ?? '',
       });
     } else {
       setFormData(initialFormData);
     }
 
     setError('');
-  }, [open, product]);
+  }, [open, category]);
 
-  useEffect(() => {
-    categoryService.getCategories().then(setCategories).catch(console.error);
-  }, []);
-
-  const isEditMode = !!product;
+  const isEditMode = !!category;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,78 +50,42 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
     e.preventDefault();
     setError('');
 
-    const sku = formData.sku.trim();
     const name = formData.name.trim();
-    const category = formData.category.trim();
     const description = formData.description.trim();
 
-    const unitPrice = Number(formData.unit_price);
-    const currentStock = Number(formData.current_stock);
-    const minStockThreshold = Number(formData.min_stock_threshold);
-
     // Required fields validation
-    if (!sku || !name || !category || !description) {
-      setError('All text fields are required.');
-      return;
-    }
-
-    // Number validation
-    if (
-      formData.unit_price === '' ||
-      formData.current_stock === '' ||
-      formData.min_stock_threshold === ''
-    ) {
-      setError('All numeric fields are required.');
-      return;
-    }
-
-    if (Number.isNaN(unitPrice) || unitPrice < 0) {
-      setError('Unit price must be a valid number greater than or equal to 0.');
-      return;
-    }
-
-    if (!Number.isInteger(currentStock) || currentStock < 0) {
-      setError('Current stock must be a whole number greater than or equal to 0.');
-      return;
-    }
-
-    if (!Number.isInteger(minStockThreshold) || minStockThreshold < 0) {
-      setError('Minimum stock threshold must be a whole number greater than or equal to 0.');
+    if (!name || !description) {
+      setError('All fields are required.');
       return;
     }
 
     const payload = {
-      sku,
       name,
-      category,
       description,
-      unitPrice,
-      currentStock,
-      minStockThreshold,
     };
 
-    console.log('Submitting product payload:', payload);
+    console.log('Submitting category payload:', payload);
 
     setSaving(true);
 
     try {
       if (isEditMode) {
-        await productService.updateProduct(product.id, payload);
+        await categoryService.updateCategory(category.id, payload);
       } else {
-        await productService.createProduct(payload);
+        await categoryService.createCategory(payload);
       }
 
       setFormData(initialFormData);
       onSuccess?.();
       onClose?.();
     } catch (err) {
-      console.error('Failed to save product:', err);
+      console.error('Failed to save category:', err);
 
       const errorMessage =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         err?.message ||
-        'Failed to save product. Please try again.';
+        'Failed to save category. Please try again.';
 
       setError(errorMessage);
     } finally {
@@ -181,7 +130,7 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
             color: '#1F2937',
           }}
         >
-          {isEditMode ? 'Edit Product' : 'Add Product'}
+          {isEditMode ? 'Edit Category' : 'Add Category'}
         </h2>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -201,18 +150,8 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
           )}
 
           <Input
-            label="SKU"
-            placeholder="e.g., SKU-001"
-            type="text"
-            name="sku"
-            value={formData.sku}
-            onChange={handleChange}
-            disabled={saving}
-          />
-
-          <Input
-            label="Product Name"
-            placeholder="e.g., Organic Coffee Beans"
+            label="Category Name"
+            placeholder="e.g., Beverages"
             type="text"
             name="name"
             value={formData.name}
@@ -220,37 +159,12 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
             disabled={saving}
           />
 
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            disabled={saving}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              border: '1px solid #E5E7EB',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontFamily: 'inherit',
-              transition: '0.2s ease-in-out',
-              opacity: saving ? 0.6 : 1,
-              cursor: saving ? 'not-allowed' : 'text',
-            }}
-          >
-            <option value="">Select a category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.name}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ fontSize: '14px', fontWeight: '500', color: '#1F2937' }}>
               Description
             </label>
             <textarea
-              placeholder="Enter product description"
+              placeholder="Enter category description"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -270,42 +184,6 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
               }}
             />
           </div>
-
-          <Input
-            label="Unit Price"
-            placeholder="e.g., 15.99"
-            type="number"
-            step="0.01"
-            min="0"
-            name="unit_price"
-            value={formData.unit_price}
-            onChange={handleChange}
-            disabled={saving}
-          />
-
-          <Input
-            label="Current Stock"
-            placeholder="e.g., 100"
-            type="number"
-            min="0"
-            step="1"
-            name="current_stock"
-            value={formData.current_stock}
-            onChange={handleChange}
-            disabled={saving}
-          />
-
-          <Input
-            label="Min Stock Threshold"
-            placeholder="e.g., 10"
-            type="number"
-            min="0"
-            step="1"
-            name="min_stock_threshold"
-            value={formData.min_stock_threshold}
-            onChange={handleChange}
-            disabled={saving}
-          />
 
           <div
             style={{
@@ -331,7 +209,7 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
               disabled={saving}
               style={{ padding: '10px 20px' }}
             >
-              {saving ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Product'}
+              {saving ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Category'}
             </Button>
           </div>
         </form>

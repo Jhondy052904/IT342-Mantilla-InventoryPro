@@ -36,5 +36,14 @@ export const apiConfig = {
       UPDATE: '/products/:id',
       DELETE: '/products/:id',
     },
+
+    // Categories
+    CATEGORIES: {
+      LIST: '/categories',
+      ALL: '/categories/all',
+      CREATE: '/categories',
+      UPDATE: '/categories/:id',
+      DELETE: '/categories/:id',
+    },
   },
 };

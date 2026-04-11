@@ -5,9 +5,10 @@ export default function Sidebar({ currentPage, onNavigate }) {
   const { logout } = useAuth();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '▪' },
-    { id: 'products', label: 'Products', icon: '▪' },
-    { id: 'settings', label: 'Settings', icon: '▪' },
+    { id: 'dashboard', label: 'Dashboard', icon: '£' },
+    { id: 'categories', label: 'Categories', icon: '£' },
+    { id: 'products', label: 'Products', icon: '£' },
+    { id: 'settings', label: 'Settings', icon: '£' },
   ];
 
   const handleLogout = () => {
