@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import ProductFormModal from '../components/ProductFormModal';
 import DeleteProductModal from '../components/DeleteProductModal';
 import { productService } from '../api/services/productService';
+import { categoryService } from '../api/services/categoryService';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,8 @@ export default function Products() {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   // Fetch products on component mount
   useEffect(() => {
@@ -34,6 +37,20 @@ export default function Products() {
     fetchProducts();
   }, []);
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.getCategories();
+        setCategories(data);
+      } catch (err) {
+        console.error('Categories fetch error:', err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const refreshProducts = async () => {
     try {
       const data = await productService.getProducts();
@@ -44,6 +61,11 @@ export default function Products() {
       console.error('Products refresh error:', err);
     }
   };
+
+  // Filter products based on selected category
+  const filteredProducts = selectedCategory
+    ? products.filter(p => p.category === selectedCategory)
+    : products;
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -161,6 +183,41 @@ export default function Products() {
           </div>
         )}
 
+        {/* Category Filter */}
+        {!loading && products.length > 0 && (
+          <div style={{ marginBottom: '16px' }}>
+            <label
+              style={{
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#1F2937',
+                marginRight: '8px',
+              }}
+            >
+              Filter by Category:
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #E5E7EB',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                backgroundColor: '#FFFFFF',
+                color: '#1F2937',
+                transition: '0.2s ease-in-out',
+              }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Table */}
         {!loading && products.length > 0 && (
           <div style={{ overflowX: 'auto' }}>
@@ -211,6 +268,16 @@ export default function Products() {
                       color: '#1F2937',
                     }}
                   >
+                    Category
+                  </th>
+                  <th
+                    style={{
+                      padding: '16px 12px',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: '#1F2937',
+                    }}
+                  >
                     Status
                   </th>
                   <th
@@ -226,7 +293,7 @@ export default function Products() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => {
+                {filteredProducts.map((product) => {
                   const status = getProductStatus(product);
                   const statusColor = getStatusColor(status);
                   return (
@@ -251,6 +318,9 @@ export default function Products() {
                       </td>
                       <td style={{ padding: '16px 12px', color: '#1F2937' }}>
                         {product.currentStock} units
+                      </td>
+                      <td style={{ padding: '16px 12px', color: '#1F2937' }}>
+                        {product.category || '—'}
                       </td>
                       <td style={{ padding: '16px 12px' }}>
                         <span
