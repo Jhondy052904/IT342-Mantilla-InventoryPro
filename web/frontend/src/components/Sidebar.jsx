@@ -1,14 +1,22 @@
 // Sidebar.jsx - Navigation Sidebar Component
 import { useAuth } from '../hooks/useAuth';
+import { 
+  LayoutDashboard, 
+  Folder, 
+  Users, 
+  Package, 
+  Settings 
+} from 'lucide-react';
 
 export default function Sidebar({ currentPage, onNavigate }) {
   const { logout } = useAuth();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '£' },
-    { id: 'categories', label: 'Categories', icon: '£' },
-    { id: 'products', label: 'Products', icon: '£' },
-    { id: 'settings', label: 'Settings', icon: '£' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'categories', label: 'Categories', icon: Folder },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'products', label: 'Products', icon: Package },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const handleLogout = () => {
@@ -76,7 +84,9 @@ export default function Sidebar({ currentPage, onNavigate }) {
                 currentPage === item.id ? '#D1FAE5' : 'transparent';
             }}
           >
-            <span style={{ marginRight: '12px', fontSize: '14px' }}>{item.icon}</span>
+            <span style={{ marginRight: '12px' }}>
+              {<item.icon size={16} />}
+            </span>
             {item.label}
           </button>
         ))}

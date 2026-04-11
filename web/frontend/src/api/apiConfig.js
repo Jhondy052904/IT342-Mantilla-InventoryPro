@@ -45,5 +45,13 @@ export const apiConfig = {
       UPDATE: '/categories/:id',
       DELETE: '/categories/:id',
     },
+
+    // Users
+    USERS: {
+      LIST: '/users',
+      CREATE: '/users',
+      UPDATE: '/users/:id',
+      DELETE: '/users/:id',
+    },
   },
 };

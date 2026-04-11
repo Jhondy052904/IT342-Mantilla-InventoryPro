@@ -10,6 +10,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Categories from './pages/Categories'
+import Users from './pages/Users'
 import Products from './pages/Products'
 import Settings from './pages/Settings'
 
@@ -80,6 +81,7 @@ function App() {
       
       {currentPage === 'dashboard' && <Dashboard />}
       {currentPage === 'categories' && <Categories />}
+      {currentPage === 'users' && <Users />}
       {currentPage === 'products' && <Products />}
       {currentPage === 'settings' && <Settings />}
     </div>

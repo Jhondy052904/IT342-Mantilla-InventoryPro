@@ -1,5 +1,6 @@
 package edu.cit.mantilla.inventorypro.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -23,9 +24,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("firstName")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @JsonProperty("lastName")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
@@ -36,6 +39,7 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @JsonProperty("userRole")
     @Column(name = "user_role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
