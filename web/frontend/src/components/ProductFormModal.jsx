@@ -27,9 +27,9 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
         name: product.name ?? '',
         category: product.category ?? '',
         description: product.description ?? '',
-        unit_price: product.unit_price ?? '',
-        current_stock: product.current_stock ?? '',
-        min_stock_threshold: product.min_stock_threshold ?? '',
+        unit_price: product.unitPrice ?? '',
+        current_stock: product.currentStock ?? '',
+        min_stock_threshold: product.minStockThreshold ?? '',
       });
     } else {
       setFormData(initialFormData);
@@ -104,9 +104,9 @@ export default function ProductFormModal({ open, onClose, onSuccess, product }) 
       name,
       category,
       description,
-      unit_price: unitPrice,
-      current_stock: currentStock,
-      min_stock_threshold: minStockThreshold,
+      unitPrice,
+      currentStock,
+      minStockThreshold,
     };
 
     console.log('Submitting product payload:', payload);

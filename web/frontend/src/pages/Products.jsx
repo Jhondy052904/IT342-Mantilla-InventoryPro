@@ -59,9 +59,9 @@ export default function Products() {
   };
 
   const getProductStatus = (product) => {
-    if (product.current_stock === 0) {
+    if (product.currentStock === 0) {
       return 'out-of-stock';
-    } else if (product.current_stock <= product.min_stock_threshold) {
+    } else if (product.currentStock <= product.minStockThreshold) {
       return 'low-stock';
     } else {
       return 'in-stock';
@@ -69,10 +69,14 @@ export default function Products() {
   };
 
   const formatCurrency = (price) => {
+    const numericPrice = parseFloat(price || 0);
+    if (isNaN(numericPrice)) {
+      return '$0.00';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(price);
+    }).format(numericPrice);
   };
 
   return (
@@ -243,10 +247,10 @@ export default function Products() {
                         {product.name}
                       </td>
                       <td style={{ padding: '16px 12px', color: '#1F2937', fontWeight: '600' }}>
-                        {formatCurrency(product.unit_price)}
+                        {formatCurrency(product.unitPrice)}
                       </td>
                       <td style={{ padding: '16px 12px', color: '#1F2937' }}>
-                        {product.current_stock} units
+                        {product.currentStock} units
                       </td>
                       <td style={{ padding: '16px 12px' }}>
                         <span
