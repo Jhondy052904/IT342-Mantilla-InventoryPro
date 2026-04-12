@@ -6,6 +6,7 @@ import edu.cit.mantilla.inventorypro.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,7 +16,7 @@ public class ProductService {
     private ProductRepository productRepository;
 
     public List<Product> getAllProducts() {
-        return productRepository.findAllByOrderByCreatedAtDesc();
+        return productRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
     }
 
     public Product getProductById(Long id) {
@@ -44,6 +45,7 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         Product existing = getProductById(id);
-        productRepository.delete(existing);
+        existing.setDeletedAt(LocalDateTime.now());
+        productRepository.save(existing);
     }
 }

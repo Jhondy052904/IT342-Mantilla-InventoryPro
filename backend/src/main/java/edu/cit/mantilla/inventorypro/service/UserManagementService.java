@@ -46,13 +46,10 @@ public class UserManagementService {
      * @return Created user entity
      */
     public User createUser(User user) {
-        // Hash the password
+        user.setId(null);
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-
-        // Set timestamps
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-
         return userRepository.save(user);
     }
 

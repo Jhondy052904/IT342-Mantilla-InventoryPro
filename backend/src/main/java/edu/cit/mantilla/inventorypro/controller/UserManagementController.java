@@ -37,14 +37,33 @@ public class UserManagementController {
     /**
      * Create a new user
      * 
-     * @param userRequest User data with password
-     * @return Created user without password hash
+     * @param body User data with password
+     * @return Created user
      */
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody User userRequest) {
-        User createdUser = userManagementService.createUser(userRequest);
-        UserResponseDto userDto = convertToUserResponseDto(createdUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+    public ResponseEntity<?> createUser(@RequestBody Map<String, Object> body) {
+        try {
+            User user = new User();
+            user.setFirstName((String) body.get("firstName"));
+            user.setLastName((String) body.get("lastName"));
+            user.setEmail((String) body.get("email"));
+            String userRoleStr = (String) body.get("userRole");
+            if (userRoleStr != null) {
+                user.setRole(User.Role.valueOf(userRoleStr.toUpperCase()));
+            }
+
+            String rawPassword = (String) body.get("password");
+            if (rawPassword == null || rawPassword.isEmpty()) {
+                return ResponseEntity.badRequest().body("Password is required.");
+            }
+            user.setPasswordHash(rawPassword); // service will hash it
+
+            User created = userManagementService.createUser(user);
+            return ResponseEntity.status(201).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("Error creating user: " + e.getMessage());
+        }
     }
 
     /**

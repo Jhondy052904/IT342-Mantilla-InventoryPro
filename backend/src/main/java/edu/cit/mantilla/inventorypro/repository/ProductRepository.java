@@ -10,5 +10,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByCreatedAtDesc();
 
+    List<Product> findAllByDeletedAtIsNullOrderByCreatedAtDesc();
+
     boolean existsBySku(String sku);
 }
