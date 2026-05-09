@@ -1,6 +1,6 @@
 package edu.cit.mantilla.inventorypro.config;
 
-import edu.cit.mantilla.inventorypro.service.UserDetailsServiceImpl;
+import edu.cit.mantilla.inventorypro.features.users.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

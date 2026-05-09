@@ -3,16 +3,16 @@ import './styles.css'
 import './App.css'
 
 // Hooks
-import { useAuth } from './hooks/useAuth'
+import { useAuth } from './features/auth/useAuth'
 
 // Pages
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import Dashboard from './pages/Dashboard'
-import Categories from './pages/Categories'
-import Users from './pages/Users'
-import Products from './pages/Products'
-import Settings from './pages/Settings'
+import Login from './features/auth/LoginPage'
+import Signup from './features/auth/SignupPage'
+import Dashboard from './features/dashboard/DashboardPage'
+import Categories from './features/categories/CategoriesPage'
+import Users from './features/users/UsersPage'
+import Products from './features/products/ProductsPage'
+import Settings from './features/settings/SettingsPage'
 
 // Components
 import Sidebar from './components/Sidebar'

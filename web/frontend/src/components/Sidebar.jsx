@@ -1,5 +1,5 @@
 // Sidebar.jsx - Navigation Sidebar Component
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../features/auth/useAuth';
 import { 
   LayoutDashboard, 
   Folder, 

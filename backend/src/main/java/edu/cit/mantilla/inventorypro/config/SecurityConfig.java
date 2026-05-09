@@ -1,6 +1,6 @@
 package edu.cit.mantilla.inventorypro.config;
 
-import edu.cit.mantilla.inventorypro.service.UserDetailsServiceImpl;
+import edu.cit.mantilla.inventorypro.features.users.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
