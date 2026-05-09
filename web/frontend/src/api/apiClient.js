@@ -88,6 +88,7 @@ class ApiClient {
   /**
    * Core request method - handles all HTTP methods
    * Centralizes: URL construction, headers, error handling, response parsing
+   * Includes response interceptor for token expiration handling
    */
   async request(method, endpoint, data, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
@@ -106,6 +107,16 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
+
+      // Response interceptor: Handle 401/403 (token expired or invalid)
+      if (response.status === 401 || response.status === 403) {
+        // Clear token from localStorage
+        localStorage.removeItem(apiConfig.TOKEN_KEY);
+        // Redirect to login page
+        window.location.href = '/login';
+        // Return early to prevent further processing
+        return;
+      }
 
       // Parse response
       const responseData = await response.json();
