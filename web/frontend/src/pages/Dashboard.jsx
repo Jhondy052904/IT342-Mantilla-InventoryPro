@@ -5,6 +5,7 @@ import BarChart from '../components/BarChart';
 import { useState, useEffect } from 'react';
 import { dashboardService } from '../api/services/dashboardService';
 import { HttpError, ApiError } from '../api/apiClient';
+import { Package, AlertTriangle, XCircle, DollarSign } from 'lucide-react';
 
 export default function Dashboard() {
   // State for API data
@@ -74,151 +75,139 @@ export default function Dashboard() {
   const recentActivities = activities.length > 0 ? activities : defaultRecentActivities;
 
   return (
-    <div style={{ marginLeft: '250px', padding: '32px', backgroundColor: '#F9FAFB', minHeight: '100vh' }}>
-      {/* Error Display */}
-      {error && (
-        <div
-          style={{
-            backgroundColor: '#FEE2E2',
-            color: '#991B1B',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid #FECACA',
-          }}
-        >
-          {error}
+    <div className="ml-64 min-h-screen bg-gray-50">
+      <div className="p-8 max-w-7xl mx-auto">
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-5 border border-red-200">
+            {error}
+          </div>
+        )}
+
+        {/* Loading Display */}
+        {loading && (
+          <div className="bg-blue-50 text-blue-600 p-4 rounded-lg mb-5 border border-blue-200">
+            Loading dashboard data...
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome back
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            Here's what's happening with your inventory today.
+          </p>
         </div>
-      )}
 
-      {/* Loading Display */}
-      {loading && (
-        <div
-          style={{
-            backgroundColor: '#E0E7FF',
-            color: '#4F46E5',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid #C7D2FE',
-          }}
-        >
-          Loading dashboard data...
-        </div>
-      )}
+        {/* Top Header Bar */}
+        <div className="border-b border-gray-100 mb-8"></div>
 
-      {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
-          Welcome back
-        </h1>
-        <p style={{ color: '#6B7280', fontSize: '16px' }}>
-          Here's what's happening with your inventory today.
-        </p>
-      </div>
+        {/* Stats Cards */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard
+              title="Total Products"
+              value={stats.totalProducts}
+              change={stats.totalProductsTrend}
+              trend="up"
+              icon={<Package className="text-green-500" />}
+            />
+            <StatCard
+              title="Low Stock"
+              value={stats.lowStockCount}
+              change={stats.lowStockTrend}
+              trend="down"
+              icon={<AlertTriangle className="text-amber-500" />}
+            />
+            <StatCard
+              title="Out of Stock"
+              value={stats.outOfStockCount}
+              change={stats.outOfStockTrend}
+              trend="down"
+              icon={<XCircle className="text-red-500" />}
+            />
+            <StatCard
+              title="Total Value"
+              value={stats.totalValue}
+              change={stats.totalValueTrend}
+              trend="up"
+              icon={<DollarSign className="text-green-500" />}
+            />
+          </div>
+        )}
 
-      {/* Summary Cards */}
-      {stats && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '20px',
-            marginBottom: '32px',
-          }}
-        >
-          <StatCard
-            title="Low Stock"
-            value={stats.lowStockCount || '12'}
-            change={stats.lowStockTrend || '2.5%'}
-            trend="down"
-            icon="!"
-          />
-          <StatCard
-            title="Overstocked"
-            value={stats.overstockedCount || '8'}
-            change={stats.overstockedTrend || '1.2%'}
-            trend="up"
-            icon="+"
-          />
-          <StatCard
-            title="Out of Stock"
-            value={stats.outOfStockCount || '3'}
-            change={stats.outOfStockTrend || '0.8%'}
-            trend="down"
-            icon="✕"
-          />
-        </div>
-      )}
-
-      {/* Main Content Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr',
-          gap: '24px',
-          marginBottom: '32px',
-        }}
-      >
-        {/* Inventory Value Trends */}
-        <Card>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px' }}>
-            Inventory Value Trends
-          </h2>
-          <BarChart data={chartData} />
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>
-            Recent Activity
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {recentActivities.map((activity, index) => (
-              <div
-                key={activity.id}
-                style={{
-                  padding: '16px 0',
-                  borderBottom: index < recentActivities.length - 1 ? '1px solid #E5E7EB' : 'none',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <div style={{ flex: 1 }}>
-                    <p
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#1F2937',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      {activity.action}
-                    </p>
-                    <p style={{ fontSize: '13px', color: '#6B7280' }}>
-                      {activity.product}
-                    </p>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Activity */}
+          <div className="lg:col-span-2">
+            <Card>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Recent Activity
+              </h2>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                {recentActivities.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No recent activity to display
                   </div>
-                  <p style={{ fontSize: '12px', color: '#9CA3AF', whiteSpace: 'nowrap' }}>
-                    {activity.timestamp}
-                  </p>
+                ) : (
+                  <div className="space-y-0">
+                    {recentActivities.map((activity, index) => (
+                      <div key={activity.id} className="flex items-center gap-4 py-3 border-b border-gray-50 last:border-b-0">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <Package className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 mb-1">
+                            {activity.action}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {activity.product}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-400 ml-auto">
+                          {activity.timestamp}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Quick Stats */}
+          <div>
+            <Card>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Quick Stats
+              </h2>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Total Products</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      {stats?.totalProducts || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Low Stock Items</span>
+                    <span className="text-2xl font-bold text-amber-600">
+                      {stats?.lowStockCount || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Out of Stock</span>
+                    <span className="text-2xl font-bold text-red-600">
+                      {stats?.outOfStockCount || 0}
+                    </span>
+                  </div>
                 </div>
               </div>
-            ))}
+            </Card>
           </div>
-          <div style={{ marginTop: '16px', textAlign: 'center' }}>
-            <a
-              href="#"
-              style={{
-                fontSize: '14px',
-                color: '#10B981',
-                fontWeight: '500',
-                textDecoration: 'none',
-              }}
-            >
-              View all activity →
-            </a>
-          </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

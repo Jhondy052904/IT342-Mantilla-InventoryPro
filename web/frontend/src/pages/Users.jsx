@@ -106,239 +106,155 @@ export default function Users() {
   };
 
   return (
-    <div style={{ marginLeft: '250px', padding: '32px', backgroundColor: '#F9FAFB', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="ml-64 min-h-screen bg-gray-50">
+      <div className="p-8 max-w-7xl mx-auto">
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1F2937', margin: 0 }}>
-            Users Management
-          </h1>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Users Management
+            </h1>
+            <p className="text-sm text-gray-400 mt-0.5">
+              Manage system users and their roles
+            </p>
+          </div>
           <Button
             variant="primary"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm shadow-green-100 transition-all"
             onClick={handleAddUser}
-            style={{ padding: '10px 20px' }}
           >
             + Add User
           </Button>
         </div>
 
+        {/* Top Header Bar */}
+        <div className="border-b border-gray-100 mb-8"></div>
+
         {/* Loading State */}
         {loading && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: '48px 16px',
-              color: '#6B7280',
-              fontSize: '16px',
-            }}
-          >
-            Loading users...
+          <div className="flex items-center justify-center py-24">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p className="text-gray-500 mt-4">Loading users...</p>
           </div>
         )}
 
         {/* Error State */}
         {!loading && error && (
-          <Card style={{ marginBottom: '24px', backgroundColor: '#FEE2E2', borderColor: '#FECACA' }}>
-            <div style={{ color: '#991B1B', fontSize: '14px' }}>
-              Error: {error}
-            </div>
+          <Card className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6">
+            {error}
           </Card>
         )}
 
         {/* Empty State */}
         {!loading && !error && users.length === 0 && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: '48px 16px',
-              color: '#6B7280',
-              fontSize: '16px',
-            }}
-          >
-            No users found
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="text-gray-300">
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h7v-2a2 2 0 002 2v12a2 2 0 002-2h6a2 2 0 002-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.35v1.41l-1.41 1.41h2a2 2 0 002-2l4.59 4.59a2 2 0 002-2 4.59 4.59a2 2 0 002-2z" />
+              </svg>
+              <p className="text-gray-500 mt-4">No users found</p>
+              <p className="text-gray-400 text-sm mt-2">Get started by adding your first user</p>
+            </div>
           </div>
         )}
 
         {/* Users Table */}
         {!loading && !error && users.length > 0 && (
-          <div style={{ overflowX: 'auto' }}>
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                fontSize: '14px',
-              }}
-            >
-              <thead>
-                <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
-                  <th
-                    style={{
-                      padding: '16px 12px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#1F2937',
-                    }}
-                  >
-                    Name
-                  </th>
-                  <th
-                    style={{
-                      padding: '16px 12px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#1F2937',
-                    }}
-                  >
-                    Email
-                  </th>
-                  <th
-                    style={{
-                      padding: '16px 12px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#1F2937',
-                    }}
-                  >
-                    Role
-                  </th>
-                  <th
-                    style={{
-                      padding: '16px 12px',
-                      textAlign: 'left',
-                      fontWeight: '600',
-                      color: '#1F2937',
-                    }}
-                  >
-                    Joined Date
-                  </th>
-                  <th
-                    style={{
-                      padding: '16px 12px',
-                      textAlign: 'center',
-                      fontWeight: '600',
-                      color: '#1F2937',
-                    }}
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => {
-                  const role = user.userRole || user.user_role || '';
-                  const roleBadge = getRoleBadge(role);
-                  return (
-                    <tr
-                      key={user.id}
-                      style={{
-                        borderBottom: '1px solid #E5E7EB',
-                        transition: 'background-color 0.2s ease-in-out',
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F9FAFB';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FFFFFF';
-                      }}
-                    >
-                      <td style={{ padding: '16px 12px', color: '#1F2937', fontWeight: '500' }}>
-                        {user.firstName} {user.lastName}
-                      </td>
-                      <td style={{ padding: '16px 12px', color: '#1F2937' }}>
-                        {user.email}
-                      </td>
-                      <td style={{ padding: '16px 12px' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            backgroundColor: roleBadge.bg,
-                            color: roleBadge.color,
-                            padding: '6px 12px',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                          }}
-                        >
-                          {roleBadge.label}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px 12px', color: '#1F2937' }}>
-                        {formatDate(user.createdAt)}
-                      </td>
-                      <td
-                        style={{
-                          padding: '16px 12px',
-                          textAlign: 'center',
-                        }}
+          <Card className="bg-white rounded-2xl shadow-sm border border-gray-100 mt-6 overflow-hidden">
+            <div className="w-full overflow-hidden">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Email
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Joined Date
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => {
+                    const role = user.userRole || user.user_role || '';
+                    const roleBadge = getRoleBadge(role);
+                    return (
+                      <tr
+                        key={user.id}
+                        className="border-b border-gray-100 hover:bg-green-50/50 transition-colors duration-150 last:border-0"
                       >
-                        <button
-                          onClick={() => handleEditUser(user)}
-                          style={{
-                            backgroundColor: 'transparent',
-                            color: '#10B981',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            marginRight: '12px',
-                            transition: 'all 0.2s ease-in-out',
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.color = '#059669';
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.color = '#10B981';
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          style={{
-                            backgroundColor: 'transparent',
-                            color: '#EF4444',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            transition: 'all 0.2s ease-in-out',
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.color = '#DC2626';
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.color = '#EF4444';
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-semibold mr-3">
+                              {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                            </div>
+                            <span className="font-medium text-gray-900">{user.firstName} {user.lastName}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <span
+                            className={`inline-block ${roleBadge.bg} ${roleBadge.color} px-3 py-1 rounded-full text-xs font-medium ${
+                              role === 'ADMIN' ? 'bg-green-50 text-green-700 border border-green-200' :
+                              role === 'STAFF' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                              'bg-gray-50 text-gray-600 border border-gray-200'
+                            }`}
+                          >
+                            {roleBadge.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {formatDate(user.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-center">
+                          <button
+                            onClick={() => handleEditUser(user)}
+                            className="text-green-600 hover:text-green-800 font-medium text-sm mr-4"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-red-500 hover:text-red-700 font-medium text-sm"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         )}
 
-        {/* Modals */}
+        {/* User Form Modal */}
         {formModalOpen && (
           <UserFormModal
             open={formModalOpen}
-            onClose={handleCloseFormModal}
+            onClose={() => setFormModalOpen(false)}
             onSuccess={handleFormSuccess}
             user={selectedUser}
           />
         )}
 
+        {/* Delete User Modal */}
         {deleteModalOpen && (
           <DeleteUserModal
             open={deleteModalOpen}
-            onClose={handleCloseDeleteModal}
+            onClose={() => setDeleteModalOpen(false)}
             onSuccess={handleDeleteSuccess}
             user={selectedUser}
           />
